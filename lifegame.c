@@ -44,13 +44,14 @@ i = input[0];
   return n;
 }
 
+
 int input_game_size(void)
 {
   int n;
   char i;
   char input [10];
  menu:
-  fprintf(stdout,"--NEW GAME--\nSELECT SIZE THE SIZE OF THE MAP\n[1] 10 x 5\n[2] 20 x 10\n[3] 40 x 20\n[4] 80 x 40\n[5] 160 x 54\nYour Selection: ");
+  fprintf(stdout,"--NEW GAME--\nSELECT SIZE THE SIZE OF THE MAP\n[1] 10 x 5\n[2] 20 x 10\n[3] 40 x 20\n[4] 80 x 40\n[5] 160 x 54\n[6]test only\nYour Selection: ");
 fscanf(stdin,"%10s",input);
  
   i = input[0];
@@ -82,6 +83,12 @@ fscanf(stdin,"%10s",input);
 	n = 5;
 	break;
       }
+    case '6':
+      {
+	n = 6;
+	break;
+      }
+
     default:
       goto menu;
     }
@@ -100,8 +107,8 @@ void life_game_size(int gamesize, int *x , int *y)
 {
   if (gamesize < 1)
     gamesize = 1;
-  if (gamesize > 5)
-    gamesize = 5;
+  if (gamesize > 6)
+    gamesize = 6;
 
   /*
 [1] 10 x 5\n
@@ -143,6 +150,12 @@ void life_game_size(int gamesize, int *x , int *y)
 	*y = 54;
 	break;
       }
+   case 6:
+     {
+       *x = 1000000;
+       *y = 1000000;
+       break;
+     }
       break;
     }
 }
@@ -390,6 +403,8 @@ void lifegame_next_gen_til_N(lifegame L, int N, int pause)
      lifegame_display(L);
      sleep(pause);
    }
+ if (i%2 != 0)
+   ptr_swap((void **) &L,(void **) &L2);
  lifegame_destroy (&L2);
 }
 
@@ -414,6 +429,10 @@ lifegame L2 = lifegame_clone(L);
       sleep(pause);
      
     }
+
+   if (i%2 != 0)
+     ptr_swap((void **) &L,(void **) &L2);
+  
   lifegame_destroy (&L2);
 }
 
@@ -422,14 +441,18 @@ void lifegame_write(lifegame A, mfile file)
 {
   char c;
   int x,y ;
-  mfile_write_str(file, "lg0.40\n");
+  //lg1 -> filetype
+  //size width height : int int
+  //ccolor bg ->char char
+  //dead rules: int int alive rules: int int int int 
+  //data...
+  mfile_write_str(file, "lg1\n");
   mfile_write_text_int (file,A->w);
   mfile_write_char(file, ' ');
   mfile_write_text_int (file,A->h);
   mfile_write_char(file, '\n');
-
   mfile_write_char(file, A->ccolor);
-  mfile_write_char(file, '\n');
+  mfile_write_char(file, ' ');
   mfile_write_char(file, A->bg);
   mfile_write_char(file, '\n');
   mfile_write_text_int (file,A->dead_rules->data[0]);
@@ -468,27 +491,39 @@ void lifegame_save( lifegame C, char* filename)
 }
 
 
-himage himage_read(mfile file)
+lifegame lifegame_read(mfile file)
 {
- 
+
+  //lg1 -> filetype
+  //size width height : int int
+  //bg
+  //ccolor
+  //dead rules: int int alive rules: int int int int 
+  //data..
+  
   int w, h;
+  int drmin, drmax,arup, armin, armax, arop;
   bool is_int, eof;
   char l = mfile_read_char(file);
-  char six = mfile_read_char(file);
+  char g = mfile_read_char(file);
+  char one = mfile_read_char(file);
+  char bg, ccolor;
   
-  if((P != 'P') || (six != '6'))
+  if((l != 'l') ||(g != 'g')||(one != '1'))
     {
-      fprintf(stderr,"himage_read error : not P6 ?");
+      fprintf(stderr,"filegame_read error : invalid filetype ?");
       return NULL;
     }
   
   himage_rd_or_ignor_sharp_comments(file, 1);
-  
+
+
+  //read width & height
   mfile_read_next_text_int(file, &w, &is_int, &eof);
    
   if (eof || (!is_int))
     {
-      fprintf(stderr, "himage_read error looking for width\n");
+      fprintf(stderr, "filegame_read error looking for width\n");
       return NULL;
     }
   
@@ -498,20 +533,81 @@ himage himage_read(mfile file)
  
  if (eof || (!is_int))
     {
-      fprintf(stderr, "himage_read error looking for height\n");
+      fprintf(stderr, "filegame_read error looking for height\n");
       return NULL;
     }
 
  
  himage_rd_or_ignor_sharp_comments(file, 1);
 
- mfile_read_next_text_int(file, &crange, &is_int, &eof);
+ //read cell color & background char 
+ // is cursor set to bg or to lr ?
+ ccolor = mfile_read_char(file);
+ //skipping space char
+ mfile_read_char(file);
+ bg = mfile_read_char(file);
+
+ himage_rd_or_ignor_sharp_comments(file, 1);
  
-  if (crange!=255)
+ //drmin, drmax,arup, armin, armax, arop;
+ mfile_read_next_text_int(file, &drmin, &is_int, &eof);
+ 
+ 
+  if (eof || (!is_int))
     {
-      fprintf(stderr, "himage_read error looking for color range\n");
+      fprintf(stderr, "filegame_read error looking for height\n");
       return NULL;
     }
+
+
+
+mfile_read_next_text_int(file, &drmax, &is_int, &eof);
+ 
+ 
+  if (eof || (!is_int))
+    {
+      fprintf(stderr, "filegame_read error looking for height\n");
+      return NULL;
+    }
+
+mfile_read_next_text_int(file, &arup, &is_int, &eof);
+ 
+ 
+  if (eof || (!is_int))
+    {
+      fprintf(stderr, "filegame_read error looking for height\n");
+      return NULL;
+    }
+
+mfile_read_next_text_int(file, &armin, &is_int, &eof);
+ 
+ 
+  if (eof || (!is_int))
+    {
+      fprintf(stderr, "filegame_read error looking for height\n");
+      return NULL;
+    }
+
+mfile_read_next_text_int(file, &armax, &is_int, &eof);
+ 
+ 
+  if (eof || (!is_int))
+    {
+      fprintf(stderr, "filegame_read error looking for height\n");
+      return NULL;
+    }
+
+
+mfile_read_next_text_int(file, &arop, &is_int, &eof);
+ 
+ 
+  if (eof || (!is_int))
+    {
+      fprintf(stderr, "filegame_read error looking for height\n");
+      return NULL;
+    }
+
+
   {
     char sep =  mfile_read_char(file);
     
@@ -525,43 +621,36 @@ himage himage_read(mfile file)
   }
 
   
-  fprintf(stderr, "himage read :width : %d | height :%d | crange : %d\n ",w,h,crange );
-    {
-      himage img =  himage_create_and_alloc(w, h,  image_make_color(0,0,0));
-      int i;
-      for(i = 0; i < w * h; i++)
-	{
-	  int r, g, b;
-	  
-	  r = mfile_read_char (file);
-	  g = mfile_read_char (file);
-	  b = mfile_read_char (file);
-
-
-	  
-	  if ((r == FILE_EOF) || (g == FILE_EOF) || (b == FILE_EOF) )
-	    {
-	       fprintf(stderr, "himage end of file");
-	       himage_destroy_full (&img);
-	       return NULL;
-	    }
+  fprintf(stderr, "filegame read :width : %d | height :%d | dead rules : %d %d | alive rules : %d %d %d %d\n ",w,h,drmin, drmax,arup, armin, armax, arop);
+  {
+    lifegame L =  lifegame_create(w, h, bg, ccolor) ;
+    int i,j;
+    for(i = 0; i < h; i++)
+      {
+	for (j = 0; j < w; j++)
 	  {
-	    imgcompo rr = (imgcompo) r;
-	    imgcompo gg = (imgcompo) g;
-	    imgcompo bb = (imgcompo) b;
-	    img->pixel[i] = image_make_color(rr , gg ,bb);
+	    int c = mfile_read_char (file);
+	    if (c == FILE_EOF)
+	      {
+		fprintf(stderr, "lifegame_read end of file");
+		lifegame_destroy(&L);
+		return NULL;
+	      }
+	    hcharpix_set_xy (L->cell, j, i,(char) c);
 	  }
-	}
-      return img;
-    }
-    
+      }
+    return L;
+  }
+  
 }
+    
 
 
-himage himage_load(char* filename)
+
+lifegame lifegame_load(char* filename)
 {
   mfile F = mfile_open (filename, FILE_READ_ONLY);
-  himage A = himage_read(F);
+  lifegame L = lifegame_read(F);
   mfile_close(&F);
-  return A;
+  return L;
 }

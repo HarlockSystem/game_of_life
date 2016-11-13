@@ -72,6 +72,6 @@ extern void set_alive_rules(lifegame L, int upop, int bmin, int bmax, int opop);
 extern bool lifegame_dead(lifegame L,int neighbor);
 extern bool lifegame_alive(lifegame L,int neighbor);
 
-extern void lifegame_write(lifegame A, mfile file)
-extern void lifegame_save(lifegame A, char* filename)
+extern void lifegame_write(lifegame A, mfile file);
+extern void lifegame_save(lifegame A, char* filename);
 #endif

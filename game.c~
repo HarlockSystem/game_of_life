@@ -31,7 +31,7 @@ int main (int argc , char** argv)
   hcharpix_draw_horline(L->cell, 10,37 , 39, 'X');
   hcharpix_draw_verline(L->cell, 8,17 , 19, 'X');
   
-    lifegame_next_gen_til_N(L, 10, 1);
+    lifegame_next_gen_til_N_or_same_gen(L, 20, 1);
 
   lifegame_save(L, "level1");
   lifegame_destroy(&L);

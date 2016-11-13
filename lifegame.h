@@ -74,4 +74,7 @@ extern bool lifegame_alive(lifegame L,int neighbor);
 
 extern void lifegame_write(lifegame A, mfile file);
 extern void lifegame_save(lifegame A, char* filename);
+
+extern lifegame lifegame_read(mfile file);
+extern lifegame lifegame_load(char* filename);
 #endif

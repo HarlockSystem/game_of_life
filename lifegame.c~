@@ -378,7 +378,7 @@ bool lifegame_alive(lifegame L,int neighbor)
 void lifegame_next_gen_til_N(lifegame L, int N, int pause)
 {
   int i;
-  int tc;
+  int tc = 0;
  lifegame L2 = lifegame_clone(L);
  lifegame_display(L);
  for (i = 0; i < N; i++)
@@ -397,15 +397,22 @@ void lifegame_next_gen_til_N(lifegame L, int N, int pause)
 void lifegame_next_gen_til_N_or_same_gen(lifegame L, int N, int pause)
 {
   int i;
+  int tc= 0;
 lifegame L2 = lifegame_clone(L);
   for (i = 0; i < N; i++)
     {
+       tc++;
+       fprintf(stdout,"time:%d\n",tc);
       lifegame_next_gen(L, L2);
+      if( hcharpix_equal(L->cell, L2->cell))
+	{
+	  fprintf(stdout,"\n -------final stage-------- \n"); 
+	  break;
+	}
       ptr_swap((void **) &L,(void **) &L2);
       lifegame_display(L);
       sleep(pause);
      
-      //if L = L2  break
     }
   lifegame_destroy (&L2);
 }
@@ -458,4 +465,103 @@ void lifegame_save( lifegame C, char* filename)
   lifegame_write(C, file);
   
   mfile_close(&file);
+}
+
+
+himage himage_read(mfile file)
+{
+ 
+  int w, h;
+  bool is_int, eof;
+  char l = mfile_read_char(file);
+  char six = mfile_read_char(file);
+  
+  if((P != 'P') || (six != '6'))
+    {
+      fprintf(stderr,"himage_read error : not P6 ?");
+      return NULL;
+    }
+  
+  himage_rd_or_ignor_sharp_comments(file, 1);
+  
+  mfile_read_next_text_int(file, &w, &is_int, &eof);
+   
+  if (eof || (!is_int))
+    {
+      fprintf(stderr, "himage_read error looking for width\n");
+      return NULL;
+    }
+  
+ 
+  
+  mfile_read_next_text_int(file, &h, &is_int, &eof);
+ 
+ if (eof || (!is_int))
+    {
+      fprintf(stderr, "himage_read error looking for height\n");
+      return NULL;
+    }
+
+ 
+ himage_rd_or_ignor_sharp_comments(file, 1);
+
+ mfile_read_next_text_int(file, &crange, &is_int, &eof);
+ 
+  if (crange!=255)
+    {
+      fprintf(stderr, "himage_read error looking for color range\n");
+      return NULL;
+    }
+  {
+    char sep =  mfile_read_char(file);
+    
+    if (sep != '\n')
+      {
+	
+	fprintf(stderr,"error beginning separator not found : %d\n",sep );
+
+	return NULL;
+      }
+  }
+
+  
+  fprintf(stderr, "himage read :width : %d | height :%d | crange : %d\n ",w,h,crange );
+    {
+      himage img =  himage_create_and_alloc(w, h,  image_make_color(0,0,0));
+      int i;
+      for(i = 0; i < w * h; i++)
+	{
+	  int r, g, b;
+	  
+	  r = mfile_read_char (file);
+	  g = mfile_read_char (file);
+	  b = mfile_read_char (file);
+
+
+	  
+	  if ((r == FILE_EOF) || (g == FILE_EOF) || (b == FILE_EOF) )
+	    {
+	       fprintf(stderr, "himage end of file");
+	       himage_destroy_full (&img);
+	       return NULL;
+	    }
+	  {
+	    imgcompo rr = (imgcompo) r;
+	    imgcompo gg = (imgcompo) g;
+	    imgcompo bb = (imgcompo) b;
+	    img->pixel[i] = image_make_color(rr , gg ,bb);
+	  }
+	}
+      return img;
+    }
+    
+}
+
+
+himage himage_load(char* filename)
+{
+  mfile F = mfile_open (filename, FILE_READ_ONLY);
+  himage A = himage_read(F);
+  mfile_close(&F);
+  return A;
 }
