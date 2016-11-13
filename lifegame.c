@@ -621,7 +621,7 @@ mfile_read_next_text_int(file, &arop, &is_int, &eof);
   }
 
   
-  fprintf(stderr, "filegame read :width : %d | height :%d | dead rules : %d %d | alive rules : %d %d %d %d\n ",w,h,drmin, drmax,arup, armin, armax, arop);
+  fprintf(stderr, "filegame read :width : %d | height :%d | dead rules : %d %d | alive rules : %d %d %d %d\n",w,h,drmin, drmax,arup, armin, armax, arop);
   {
     lifegame L =  lifegame_create(w, h, bg, ccolor) ;
     int i,j;
@@ -629,14 +629,15 @@ mfile_read_next_text_int(file, &arop, &is_int, &eof);
       {
 	for (j = 0; j < w; j++)
 	  {
-	    int c = mfile_read_char (file);
+	    hcharpix_goto_xy(L->cell, j, i);
+	    int c = (int) mfile_read_next_ignore_cr (file);
 	    if (c == FILE_EOF)
 	      {
-		fprintf(stderr, "lifegame_read end of file");
+		fprintf(stderr, "lifegame_read end of file error\n");
 		lifegame_destroy(&L);
 		return NULL;
 	      }
-	    hcharpix_set_xy (L->cell, j, i,(char) c);
+	    hcharpix_set (L->cell, (char) c);
 	  }
       }
     return L;

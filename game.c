@@ -17,7 +17,7 @@ int main (int argc , char** argv)
   
   if (g == 2)
     {
-      lifegame L = lifegame_load("level1");
+      lifegame L = lifegame_load("level2");
       if (L == NULL)
 	fprintf(stderr, "load error\n");
 
