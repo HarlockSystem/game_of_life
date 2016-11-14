@@ -17,6 +17,7 @@ int main (int argc , char** argv)
   
   if (g == 2)
     {
+     
       lifegame L = lifegame_load("level2");
       if (L == NULL)
 	fprintf(stderr, "load error\n");
@@ -25,7 +26,7 @@ int main (int argc , char** argv)
       if (L != NULL)
 	{
 	  fprintf(stderr,"load done\n");
-	  lifegame_next_gen_til_N(L, 9, 1);
+	  lifegame_next_gen_til_N_or_same_gen(L, 10, 1);
 	  lifegame_destroy(&L);
 	}
       

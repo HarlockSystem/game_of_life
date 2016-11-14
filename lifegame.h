@@ -71,10 +71,11 @@ extern void set_alive_rules(lifegame L, int upop, int bmin, int bmax, int opop);
 //check neighbor rules for dead cells & alive cells
 extern bool lifegame_dead(lifegame L,int neighbor);
 extern bool lifegame_alive(lifegame L,int neighbor);
-
+//gestion jstr ?
 extern void lifegame_write(lifegame A, mfile file);
 extern void lifegame_save(lifegame A, char* filename);
 
 extern lifegame lifegame_read(mfile file);
 extern lifegame lifegame_load(char* filename);
+//lifegame load aux ? 
 #endif

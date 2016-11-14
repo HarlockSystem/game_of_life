@@ -261,7 +261,7 @@ void set_cell_debug(lifegame L, int x, int y ,int n, bool alive)
 lifegame lifegame_clone(lifegame L)
 {
   lifegame L2 = lifegame_create(L->w , L->h, L->bg, L->ccolor);
-   hcharpix_copy (L->cell, 0, 0, L->w  , L->h,L2->cell , 0, 0);
+   hcharpix_copy (L->cell, 0, 0, L->w-1  , L->h-1,L2->cell , 0, 0);
 
    
 fprintf(stderr,"width:%d | height:%d | bg:%c | ccolor:%c\n", L->w , L->h, L->bg, L->ccolor);
@@ -279,7 +279,7 @@ L2->alive_rules = lg_alive_rules();
 void D_lifegame_clone(lifegame L, lifegame L2)
 {
   
-   hcharpix_copy (L->cell, 0, 0, L->w  , L->h,L2->cell , 0, 0);
+   hcharpix_copy (L->cell, 0, 0, L->w-1  , L->h-1,L2->cell , 0, 0);
    L2->alive_rules->data[0] = L->alive_rules->data[0];
    L2->alive_rules->data[1] = L->alive_rules->data[1];
    L2->alive_rules->data[2] = L->alive_rules->data[2];
@@ -392,8 +392,9 @@ void lifegame_next_gen_til_N(lifegame L, int N, int pause)
 {
   int i;
   int tc = 0;
+   lifegame_display(L);
  lifegame L2 = lifegame_clone(L);
- lifegame_display(L);
+
  for (i = 0; i < N; i++)
    {
      tc++;
@@ -413,6 +414,7 @@ void lifegame_next_gen_til_N_or_same_gen(lifegame L, int N, int pause)
 {
   int i;
   int tc= 0;
+   lifegame_display(L);
 lifegame L2 = lifegame_clone(L);
   for (i = 0; i < N; i++)
     {
@@ -541,7 +543,7 @@ lifegame lifegame_read(mfile file)
  himage_rd_or_ignor_sharp_comments(file, 1);
 
  //read cell color & background char 
- // is cursor set to bg or to lr ?
+
  ccolor = mfile_read_char(file);
  //skipping space char
  mfile_read_char(file);
@@ -619,18 +621,21 @@ mfile_read_next_text_int(file, &arop, &is_int, &eof);
 	return NULL;
       }
   }
-
+ 
   
-  fprintf(stderr, "filegame read :width : %d | height :%d | dead rules : %d %d | alive rules : %d %d %d %d\n",w,h,drmin, drmax,arup, armin, armax, arop);
+  fprintf(stderr, "filegame read -> width : %d | height :%d | dead rules : %d %d | alive rules : %d %d %d %d\n",w,h,drmin, drmax,arup, armin, armax, arop);
   {
     lifegame L =  lifegame_create(w, h, bg, ccolor) ;
-    int i,j;
+    int i,j,x,y;
     for(i = 0; i < h; i++)
       {
 	for (j = 0; j < w; j++)
 	  {
 	    hcharpix_goto_xy(L->cell, j, i);
-	    int c = (int) mfile_read_next_ignore_cr (file);
+	    hcharpix_coordonates(L->cell, &x, &y);
+	    fprintf(stdout ,"| x:%d |j:%d | y:%d | i:%d |\n",x , j, y, i);
+	    int c =  mfile_read_next_ignore_cr(file);
+     
 	    if (c == FILE_EOF)
 	      {
 		fprintf(stderr, "lifegame_read end of file error\n");

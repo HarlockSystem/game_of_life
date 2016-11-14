@@ -18,7 +18,7 @@ game : $(OBJS) game.o
 #make_unit_graphs.exe : $(OBJS) make_unit_graphs.o
 #	$(CC) $(OBJS) make_unit_graphs.o -o make_unit_graphs
 
-game.o :  game.c lifegame.h ../tools0_50/tools.h ../tools0_50/jstr.h ../tools0_50/intarray.h ../tools0_50/hcharpix.h ../tools0_50/mfile.h ../tools0_50/KVdatatrain.h
+game.o : game.c lifegame.h ../tools0_50/tools.h ../tools0_50/jstr.h ../tools0_50/intarray.h ../tools0_50/hcharpix.h ../tools0_50/mfile.h ../tools0_50/KVdatatrain.h
 	$(CC) $(COPTS) game.c
 
 lifegame.o :  lifegame.c lifegame.h ../tools0_50/tools.h ../tools0_50/jstr.h ../tools0_50/intarray.h ../tools0_50/hcharpix.h ../tools0_50/mfile.h ../tools0_50/KVdatatrain.h ../tools0_50/mfile.h
@@ -33,20 +33,21 @@ lifegame.o :  lifegame.c lifegame.h ../tools0_50/tools.h ../tools0_50/jstr.h ../
 #make_unit_graphs.o : make_unit_graphs.c ds_cell.h graph_core.h graph_algos.h tools.h jfile.h
 #	$(CC) $(COPTS) make_unit_graphs.c
 
+
 ../tools0_50/mfile.o : ../tools0_50/mfile.c ../tools0_50/mfile.h ../tools0_50/tools.h ../tools0_50/jstr.h
-	$(CC) $(COPTS) ../tools0_50/mfile.c
+	$(CC) $(COPTS) ../tools0_50/mfile.c  -o ../tools0_50/mfile.o
 
 ../tools0_50/ds_cell.o : ../tools0_50/ds_cell.c ../tools0_50/ds_cell.h ../tools0_50/jfile.h ../tools0_50/tools.h
 	$(CC) $(COPTS) ../tools0_50/ds_cell.c
 
 ../tools0_50/tools.o : ../tools0_50/tools.c ../tools0_50/tools.h
-	$(CC) $(COPTS) ../tools0_50/tools.c
+	$(CC) $(COPTS) ../tools0_50/tools.c  -o ../tools0_50/tools.o
 
-../tools0_50/graph_core.o : ../tools0_50/graph_core.c ../tools0_50/graph_core.h ../tools0_50/ds_cell.h ../tools0_50/tools.h
-	$(CC) $(COPTS) ../tools0_50/graph_core.c
+#../tools0_50/graph_core.o : ../tools0_50/graph_core.c ../tools0_50/graph_core.h ../tools0_50/ds_cell.h ../tools0_50/tools.h
+#	$(CC) $(COPTS) ../tools0_50/graph_core.c
 
-../tools0_50/graph_algos.o : ../tools0_50/graph_algos.c ../tools0_50/graph_algos.h ../tools0_50/graph_core.h ../tools0_50/ds_cell.h ../tools0_50/tools.h
-	$(CC) $(COPTS) ../tools0_50/graph_algos.c
+#../tools0_50/graph_algos.o : ../tools0_50/graph_algos.c ../tools0_50/graph_algos.h ../tools0_50/graph_core.h ../tools0_50/ds_cell.h ../tools0_50/tools.h
+#	$(CC) $(COPTS) ../tools0_50/graph_algos.c  -o ../tools0_50/graph_algos.o
 
 ../tools0_50/jfile.o : ../tools0_50/jfile.c ../tools0_50/jfile.h ../tools0_50/jstr.h ../tools0_50/tools.h ../tools0_50/gll_buffer.h
 	$(CC) $(COPTS) ../tools0_50/jfile.c -o ../tools0_50/jfile.o
